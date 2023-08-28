@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 
 import com.articulate.sigma.*;
 import com.articulate.sigma.trans.TPTP3ProofProcessor;
+import com.articulate.sigma.trans.TPTP2SUMO;
 import com.articulate.sigma.tp.Vampire;
 import com.articulate.sigma.wordNet.*;
 import com.articulate.sigma.utils.*;
@@ -69,8 +70,17 @@ public class SigmaResource {
         long end = System.currentTimeMillis();
         double durationS = (end - start) / 1000.0;
 
+        List<String> clauses = new ArrayList<String>();
+        List<String> formulas = new ArrayList<String>();
+        for (Object p : tpp.proof) {
+            clauses.add(TPTP2SUMO.toSUMO(p.toString()));
+            formulas.add(TPTP2SUMO.formToSUMO(p.toString()));
+        }
+
         String tor = "{\"bindings\": " + this.toJSON(tpp.bindingMap)
                 + ", \"proof\": " + this.toJSON(tpp.proof)
+                + ", \"clauses\": " + this.toJSON(clauses)
+                + ", \"formulas\": " + this.toJSON(formulas)
                 + ", \"time\": " + durationS;
         if (durationS >= timeout) {
             tor += ", \"error\": \"timeout\"}";
